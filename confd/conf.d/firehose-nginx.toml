@@ -1,0 +1,11 @@
+[template]
+keys = [
+  "firehose/upstream",
+  "firehose/nginx"
+]
+owner = "nginx"
+mode = "0644"
+src = "firehose-nginx.tmpl"
+dest = "/etc/nginx.conf"
+check_cmd  = "/usr/local/sbin/nginx -t -c /etc/nginx.conf"
+reload_cmd = "/usr/local/sbin/nginx -s reload"

@@ -1,0 +1,67 @@
+daemon off;
+worker_processes {{with .firehose_nginx_worker_processes}} {{.}} {{else}} 4 {{end}};
+
+events {
+    worker_connections {{with .firehose_nginx_worker_connections}} {{.}} {{else}} 4096 {{end}};
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    sendfile        on;
+    keepalive_timeout {{with .firehose_nginx_keepalive_timeout}} {{.}} {{else}} 65s {{end}};;
+
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      close;
+    }
+
+    server {
+        listen       80;
+        server_name {{with .firehose_nginx_server_name}} {{.}} {{else}} firehose-router {{end}};
+
+        proxy_connect_timeout       5m;
+        proxy_send_timeout          5m;
+        proxy_read_timeout          5m;
+        send_timeout                5m;
+
+        location /nginx-status {
+            stub_status on;
+            access_log off;
+        }
+
+        location /nginx-healthcheck {
+            default_type 'text/plain';
+            access_log off;
+            return 200;
+        }
+
+        location / {
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
+            proxy_redirect off;
+            proxy_next_upstream off;
+
+            proxy_pass http://firehose;
+
+        }
+
+        error_page   500 502 503 504  /50x.html;
+
+        location = /50x.html {
+            root   html;
+        }
+    }
+
+    upstream firehose {
+{{range $server := .firehose_upstream}}
+        server {{$server.Value}};
+{{end}}
+    }
+
+}
