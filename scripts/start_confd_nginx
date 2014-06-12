@@ -7,12 +7,12 @@ ETCD_IP=${ETCD_IP:-172.17.42.1}
 ETCD=$ETCD_IP:$ETCD_PORT
 
 # Loop until confd has updated the nginx config
-until confd -onetime -node $ETCD -config-file /etc/confd/conf.d/firehose-nginx.toml; do
+until confd -backend etcd -onetime -node $ETCD -config-file /etc/confd/conf.d/firehose-nginx.toml; do
   echo "Waiting for confd to update /etc/nginx.conf..."
   sleep 5
 done
 
 echo "Starting confd and nginx..."
 
-confd -interval 30 -node $ETCD -config-file /etc/confd/conf.d/nginx.toml &
+confd -backend etcd -interval 30 -node $ETCD -config-file /etc/confd/conf.d/firehose-nginx.toml &
 nginx
