@@ -33,7 +33,7 @@ BindsTo=firehose@%i.service
 [Service]
 TimeoutStartSec=30s
 ExecStartPre=/bin/sh -c "echo 'Sleeping for 5 seconds for firehose-%i to startup...'; sleep 5"
-ExecStart=/bin/sh -c "port=$(docker inspect -f '{{range $i, $e := .HostConfig.PortBindings }}{{$p := index $e 0}}{{$p.HostPort}}{{end}}' firehose-%i); echo -n \"Adding socket $COREOS_PRIVATE_IPV4:$port/tcp to /firehose/upstream/firehose-%i\"; while netstat -lnt | grep :$port >/dev/null; do etcdctl set /firehose/upstream/firehose-%i $COREOS_PRIVATE_IPV4:$port --ttl 60 >/dev/null; sleep 45; doneƒ"
+ExecStart=/bin/sh -c "port=$(docker inspect -f '{{range $i, $e := .HostConfig.PortBindings }}{{$p := index $e 0}}{{$p.HostPort}}{{end}}' firehose-%i); echo -n \"Adding socket $COREOS_PRIVATE_IPV4:$port/tcp to /firehose/upstream/firehose-%i\"; while netstat -lnt | grep :$port >/dev/null; do etcdctl set /firehose/upstream/firehose-%i $COREOS_PRIVATE_IPV4:$port --ttl 60 >/dev/null; sleep 45; done"
 ExecStop=/bin/sh -c "echo -n \"Removing etcd key /firehose/instance/firehose-%i\"; etcdctl rm --recursive /firehose/instance/firehose-%i
 
 [X-Fleet]

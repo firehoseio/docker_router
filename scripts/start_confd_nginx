@@ -14,5 +14,5 @@ done
 
 echo "Starting confd and nginx..."
 
-confd -backend etcd -interval 30 -node $ETCD -config-file /etc/confd/conf.d/firehose-nginx.toml &
+confd -verbose -backend etcd -interval 30 -node $ETCD -config-file /etc/confd/conf.d/firehose-nginx.toml > /dev/stdout 2>&1 &
 nginx
