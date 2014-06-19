@@ -1,6 +1,6 @@
 daemon off;
 worker_processes {{with .firehose_nginx_worker_processes}}{{.}}{{else}}4{{end}};
-worker_rlimit_nofile {{with .firehose_nginx_worker_rlimit_nofile}}{{.}}{{else}}8192{{end}};
+{{with .firehose_nginx_worker_rlimit_nofile}}worker_rlimit_nofile {{.}}{{else}}{{end}};
 
 events {
     worker_connections {{with .firehose_nginx_worker_connections}}{{.}}{{else}}4096{{end}};
@@ -60,7 +60,9 @@ http {
     }
 
     upstream firehose {
-        {{range $server := .firehose_upstream}}server {{$server.Value}};{{end}}
+        {{range $server := .firehose_upstream}}
+        server {{$server.Value}};
+        {{end}}
     }
 
 }
