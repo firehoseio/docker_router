@@ -59,9 +59,7 @@ http {
     }
 
     upstream firehose {
-{{range $server := .firehose_upstream}}
-        server {{$server.Value}};
-{{end}}
+        {{range $server := .firehose_upstream}}server {{$server.Value}} max_conns={{with .firehose_nginx_max_conns}}{{.}}{{else}}0{{end}};{{end}}
     }
 
 }
